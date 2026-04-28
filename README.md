@@ -1,35 +1,34 @@
 # 🕵️ GhostNet DevBridge
 ### IBM Bob Hackathon 2026 — *Your Repo. Your Rules. AI as Your Dev Partner.*
 
-> **GhostNet DevBridge** uses IBM Bob as an AI-powered development partner for [GhostNet](https://ghost-net.org) — a live, deployed, gamified cybersecurity education platform. Bob understands the full GhostNet codebase, generates documentation, answers developer questions in context, and auto-generates new mission content.
+> **GhostNet DevBridge** uses IBM Bob as an AI-powered development partner for **GhostNet V2** — an early open-source version of a gamified cybersecurity education platform. This repository serves as the demonstration codebase for the hackathon, showcasing how IBM Bob can accelerate solo developer workflows on complex Flask projects.
 
 ---
 
 ## 🚀 The Problem
 
-GhostNet is a complex, multi-service cybersecurity training platform built and maintained by a **single developer**. It runs across two production servers, serves real students, and has grown organically over 3+ years into a system with:
+GhostNet is a cybersecurity training platform built and maintained by a **single developer**. Even at its V2 stage, the codebase includes:
 
-- 40+ terminal commands with custom logic
-- Faction war systems, XP economy, BTC conversion, PvP mechanics
-- 5 AI agents powered by Ollama (GHOST-7, NEXUS-IR, PHANTOM-0, ANALYST-X, BROKER-9, RON)
-- Quantum computing missions using real Qiskit circuits
-- An isometric city engine with real-time player activity
+- Multiple terminal commands with custom routing logic
+- XP economy and player progression systems
+- Session-based authentication and admin dashboards
+- Multi-template Flask architecture with dynamic game state
 
-**The challenge:** Onboarding a new contributor or even remembering the full codebase structure after a week away is painful. There's no documentation, no test coverage guide, and no AI-aware context layer.
+**The challenge:** Onboarding a new contributor — or even returning to your own code after a week — is painful without proper documentation, context maps, or an AI-aware layer that understands the full codebase.
 
 ---
 
 ## 💡 The Solution: GhostNet DevBridge
 
-GhostNet DevBridge integrates **IBM Bob** directly into the GhostNet development workflow, enabling:
+GhostNet DevBridge integrates **IBM Bob** directly into the GhostNet V2 development workflow, enabling:
 
 ### 🗺️ Feature 1 — Codebase Navigator
-Ask Bob anything about the GhostNet codebase in natural language:
+Ask Bob anything about the GhostNet V2 codebase in natural language:
 - *"Where is the XP award logic?"*
-- *"How does the faction war system work?"*
-- *"What commands are available in the Linux terminal?"*
+- *"How does session authentication work?"*
+- *"What routes are available in app.py?"*
 
-Bob reads the full repository context and answers with precision — no more grepping through 5,000 lines of Flask code.
+Bob reads the full repository context and answers with precision — no more grepping through thousands of lines of Flask code.
 
 ### 📄 Feature 2 — Auto-Doc Generator
 Feed Bob any route, module, or function and get structured Markdown documentation instantly. Outputs:
@@ -50,20 +49,25 @@ Bob understands the GhostNet mission schema and generates:
 
 ```
 ghostnet-devbridge/
-├── app.py                          # Main Flask application
-├── bot_engine.py                   # AI bot daemon (8 bots, 45s tick)
-├── ghostnet_ctf_patch.py           # CTF mission module
-├── ghostnet_scripting_engine.py    # Scripting engine module
+├── app.py                          # Main Flask application (V2 demo)
 ├── requirements.txt
 ├── README.md                       # This file
 ├── CODEBASE.md                     # Full codebase map for IBM Bob
 ├── templates/
-│   ├── desktop.html                # Main game UI
-│   ├── terminal.html               # Hacker terminal (iframe)
-│   └── admin/                      # SOC-style admin dashboard
+│   ├── index.html                  # Landing / login
+│   ├── terminal.html               # Hacker terminal
+│   ├── leaderboard.html            # Player rankings
+│   ├── admin.html                  # Admin dashboard
+│   ├── admin_login.html            # Admin auth
+│   ├── intro.html                  # Onboarding intro
+│   └── vip.html                    # VIP tier page
 └── static/
     ├── js/
+    │   ├── terminal.js
+    │   ├── city.js
+    │   └── intro.js
     └── css/
+        └── ghost.css
 ```
 
 ---
@@ -73,12 +77,9 @@ ghostnet-devbridge/
 | Layer | Technology |
 |---|---|
 | Backend | Python / Flask |
-| Database | SQLite (V4/V5) / PostgreSQL (V10) |
-| AI Agents | Ollama (llama3.2, custom models) |
-| Quantum | Qiskit |
-| Maps | Leaflet.js + CartoDB Dark Matter |
-| Frontend | Vanilla JS, Socket.IO |
-| Server | DigitalOcean, nginx, systemd |
+| Database | SQLite |
+| Frontend | Vanilla JS |
+| Server | DigitalOcean / nginx / systemd |
 
 ---
 
@@ -86,18 +87,16 @@ ghostnet-devbridge/
 
 IBM Bob was used throughout this project to:
 
-1. **Understand the codebase** — Bob was given the full repository and used to answer architectural questions, trace logic flows, and identify dependencies across modules.
+1. **Understand the codebase** — Bob was given the full V2 repository and used to answer architectural questions, trace logic flows, and identify dependencies across modules.
 2. **Generate documentation** — `CODEBASE.md` was generated and maintained with Bob's assistance, providing a living map of the platform.
 3. **Create mission content** — New CTF missions were scaffolded by Bob using context from existing missions in the codebase.
-4. **Debug cross-module issues** — Bob helped trace session handling bugs across the iframe terminal / desktop.html postMessage bridge.
+4. **Debug cross-module issues** — Bob helped trace session handling bugs and template rendering logic across the Flask app.
 
 ---
 
-## 🌐 Live Demo
+## ⚠️ Note on Versioning
 
-- **GhostNet V4/V5:** https://ghost-net.org
-- **GhostNet V10 (Isometric):** https://ghost10.org
-- **GhostNet Academy:** https://ghost10.org/academy
+This repository contains **GhostNet V2**, an early open-source demo version of the platform released specifically for this hackathon showcase. It is not the current production version. The platform has evolved significantly since V2 and continues to be actively developed.
 
 ---
 
@@ -105,11 +104,9 @@ IBM Bob was used throughout this project to:
 
 **Engr. Orlando Ritchie R. Natonton, IE, ME, LPT**
 Faculty — Father Saturnino Urios University (FSUU)
-Honorary Member — Quantum Computing Society of the Philippines (QCSP)
-IPOPHL Copyright Registered — GhostNet V5 & V10
+CEO/Founder — M73 vLabs
 
 GitHub: [@merlin777k](https://github.com/merlin777k)
-Platform: [ghost-net.org](https://ghost-net.org)
 
 ---
 
