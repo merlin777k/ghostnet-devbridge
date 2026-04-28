@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GhostNet v2 — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ghost.css') }}">
+</head>
+<body class="login-page">
+
+<canvas id="rain"></canvas>
+<div class="city-wrap" id="city-wrap">
+  <div class="city-haze"></div>
+  <div class="buildings-back" id="buildings-back"></div>
+  <div class="buildings-front" id="buildings-front"></div>
+  <div class="fog"></div>
+  <div class="ground-glow"></div>
+</div>
+<div class="particles" id="particles"></div>
+
+<!-- Encrypted intro overlay -->
+<div id="intro-overlay">
+  <div class="decrypt-container">
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="decrypt-header">
+      <div class="dot"></div>
+      <span>ENCRYPTED_TRANSMISSION_v2.0 &nbsp;|&nbsp; SOURCE: UNKNOWN &nbsp;|&nbsp; DECRYPTING...</span>
+    </div>
+    <div class="decrypt-body">
+      <div id="decrypt-text"></div>
+    </div>
+    <div class="decrypt-footer">
+      <span id="decrypt-status">INITIALIZING...</span>
+      <span id="decrypt-pct">0%</span>
+    </div>
+  </div>
+  <button id="enter-btn">▶ ACCESS THE NET</button>
+</div>
+
+<!-- Login/Register panel -->
+<div id="auth-panel" style="display:none">
+  <div class="auth-box">
+    <div class="auth-logo">GHOST<span>NET</span></div>
+    <div class="auth-sub">// UNDERGROUND HACKING SIM v2.0 //</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in messages %}
+        <div class="flash-msg {{cat}}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="tab-btns">
+      <button class="tab-btn active" onclick="showTab('login')">LOGIN</button>
+      <button class="tab-btn" onclick="showTab('register')">REGISTER</button>
+    </div>
+
+    <form id="login-form" class="auth-form" action="/login" method="POST">
+      <div class="input-wrap">
+        <span class="input-prefix">ghost@net:~$</span>
+        <input type="text" name="username" placeholder="username" autocomplete="off" required>
+      </div>
+      <div class="input-wrap">
+        <span class="input-prefix">password:</span>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="auth-btn">LOGIN →</button>
+    </form>
+
+    <form id="register-form" class="auth-form" style="display:none" action="/register" method="POST">
+      <div class="input-wrap">
+        <span class="input-prefix">new_user@net:~$</span>
+        <input type="text" name="username" placeholder="choose username" autocomplete="off" required minlength="3" maxlength="20">
+      </div>
+      <div class="input-wrap">
+        <span class="input-prefix">set_password:</span>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="auth-btn">JOIN THE UNDERGROUND →</button>
+    </form>
+
+    <div class="auth-footer">
+      <a href="/leaderboard">🏆 Leaderboard</a>
+      <span>|</span>
+      <a href="https://ko-fi.com/merlin777k" target="_blank">☕ Support</a>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/city.js') }}"></script>
+<script src="{{ url_for('static', filename='js/intro.js') }}"></script>
+<script>
+function showTab(t){
+  document.getElementById('login-form').style.display = t==='login'?'flex':'none';
+  document.getElementById('register-form').style.display = t==='register'?'flex':'none';
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', (i===0&&t==='login')||(i===1&&t==='register')));
+}
+// After intro, show auth
+window.addEventListener('intro-done', ()=>{
+  document.getElementById('auth-panel').style.display='flex';
+});
+// If already dismissed intro before, skip (check sessionStorage)
+if(sessionStorage.getItem('intro_seen')){
+  document.getElementById('intro-overlay').style.display='none';
+  document.getElementById('auth-panel').style.display='flex';
+}
+</script>
+</body>
+</html>

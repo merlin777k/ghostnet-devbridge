@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GhostNet — VIP</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ghost.css') }}">
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="city-wrap city-small" id="city-wrap">
+  <div class="city-haze"></div>
+  <div class="buildings-back" id="buildings-back"></div>
+  <div class="buildings-front" id="buildings-front"></div>
+  <div class="fog"></div>
+  <div class="ground-glow"></div>
+</div>
+<div class="topbar">
+  <div class="logo">GHOST<span>NET</span></div>
+  <div class="topbar-right">
+    <a href="/terminal" class="topbar-link">← TERMINAL</a>
+  </div>
+</div>
+
+<div class="vip-wrap">
+  <div class="vip-header">
+    <div class="vip-title">⭐ VIP TIERS</div>
+    <div class="vip-sub">Support GhostNet and gain underground advantages</div>
+    {% if user.vip_tier %}
+    <div class="vip-current">Your tier: {{ vip_tiers[user.vip_tier].name }}</div>
+    {% endif %}
+  </div>
+
+  <div class="vip-grid">
+    {% for key, tier in vip_tiers.items() %}
+    <div class="vip-card tier-{{ key }} {% if user.vip_tier == key %}active-tier{% endif %}">
+      <div class="vip-tier-name">{{ tier.name }}</div>
+      <div class="vip-price">${{ tier.price }} / one-time</div>
+      <div class="vip-perks">
+        <div class="vip-perk">⚡ {{ tier.xp_mult }}× XP multiplier</div>
+        <div class="vip-perk">💰 {{ tier.income_mult }}× income multiplier</div>
+        <div class="vip-perk">👑 Exclusive rank badge</div>
+        <div class="vip-perk">🔓 Priority support</div>
+      </div>
+      <a href="https://ko-fi.com/merlin777k" target="_blank" class="vip-btn">
+        GET ON KO-FI →
+      </a>
+      <div class="vip-note">After purchase, include your username in the Ko-fi message.</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="vip-footer">
+    <p>After supporting on Ko-fi, your VIP status will be applied automatically within minutes.</p>
+    <p>Include your <strong>exact GhostNet username</strong> in the Ko-fi message.</p>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/city.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GhostNet Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ghost.css') }}">
+</head>
+<body>
+<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#020408;">
+  <div class="auth-box" style="min-width:320px;">
+    <div class="auth-logo" style="font-size:20px;">GHOST<span>NET</span> ADMIN</div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in messages %}<div class="flash-msg {{cat}}">{{msg}}</div>{% endfor %}
+    {% endwith %}
+    <form action="/admin/login" method="POST" style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <div class="input-wrap">
+        <span class="input-prefix">password:</span>
+        <input type="password" name="password" placeholder="admin password" required>
+      </div>
+      <button type="submit" class="auth-btn">ACCESS ADMIN →</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

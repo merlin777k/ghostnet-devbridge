@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GhostNet — Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ghost.css') }}">
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="city-wrap city-small" id="city-wrap">
+  <div class="city-haze"></div>
+  <div class="buildings-back" id="buildings-back"></div>
+  <div class="buildings-front" id="buildings-front"></div>
+  <div class="fog"></div>
+  <div class="ground-glow"></div>
+</div>
+<div class="topbar">
+  <div class="logo">GHOST<span>NET</span> <span class="beta-label">v2</span></div>
+  <div class="topbar-right">
+    <a href="/" class="topbar-link">← BACK</a>
+  </div>
+</div>
+
+<div class="lb-wrap">
+  <div class="lb-header">
+    <div class="lb-title">🏆 GLOBAL LEADERBOARD</div>
+    <div class="lb-sub">Top hackers in the underground</div>
+  </div>
+  <div class="lb-table">
+    <div class="lb-row lb-head">
+      <span>#</span><span>OPERATIVE</span><span>RANK</span><span>XP</span>
+    </div>
+    {% for p in players %}
+    <div class="lb-row {% if loop.index <= 3 %}top{{ loop.index }}{% endif %}">
+      <span class="lb-pos">{{ loop.index }}</span>
+      <span class="lb-user">{{ p.username }}</span>
+      <span class="lb-rank">{{ p.icon }} {{ p.rank }}</span>
+      <span class="lb-xp">{{ '{:,}'.format(p.xp) }}</span>
+    </div>
+    {% endfor %}
+    {% if not players %}
+    <div class="lb-empty">No operatives registered yet. Be the first.</div>
+    {% endif %}
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/city.js') }}"></script>
+</body>
+</html>

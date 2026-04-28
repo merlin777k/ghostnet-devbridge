@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GhostNet — Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ghost.css') }}">
+</head>
+<body class="terminal-page">
+<canvas id="rain"></canvas>
+<div class="city-wrap city-small" id="city-wrap">
+  <div class="city-haze"></div>
+  <div class="buildings-back" id="buildings-back"></div>
+  <div class="buildings-front" id="buildings-front"></div>
+  <div class="fog"></div>
+  <div class="ground-glow"></div>
+</div>
+
+<!-- Background music -->
+<audio id="bg-music" loop>
+  <source src="{{ url_for('static', filename='music/bg.mp3') }}" type="audio/mpeg">
+</audio>
+<button id="music-toggle" class="music-btn" onclick="toggleMusic()">♪ ON</button>
+
+<!-- ══ TOP BAR ══ -->
+<div class="topbar">
+  <div class="logo">GHOST<span>NET</span> <span class="beta-label">v2</span></div>
+  <div class="topbar-stats">
+    <div class="stat-chip xp-chip">⚡ <span id="hud-xp">{{ user.xp | int }}</span> XP</div>
+    <div class="stat-chip cash-chip">💰 $<span id="hud-cash">{{ user.cash | int }}</span></div>
+    <div class="stat-chip rank-chip"><span id="hud-rank-icon">{{ rank_icon }}</span> <span id="hud-rank">{{ rank_name }}</span></div>
+    {% if vip_info %}
+    <div class="stat-chip vip-chip">{{ vip_info.name }}</div>
+    {% endif %}
+  </div>
+  <div class="topbar-right">
+    <span class="online-dot"></span>
+    <span class="topbar-user">ghost@{{ user.username }}:~#</span>
+    <a href="/leaderboard" class="topbar-link">🏆</a>
+    <a href="/vip" class="topbar-link">⭐ VIP</a>
+    <a href="/logout" class="topbar-link">EXIT</a>
+  </div>
+</div>
+
+<!-- XP Bar -->
+<div class="xp-bar-outer">
+  <div class="xp-bar-fill" id="xp-bar-fill" style="width:{{ xp_pct }}%"></div>
+  <div class="xp-bar-label">{{ rank_icon }} {{ rank_name }} → {{ ranks[user.rank_idx+1][2] if user.rank_idx < ranks|length-1 else '⚛️' }} {{ ranks[user.rank_idx+1][1] if user.rank_idx < ranks|length-1 else 'MAX' }} | {{ user.xp }}/{{ next_xp }} XP</div>
+</div>
+
+<!-- ══ MAIN LAYOUT ══ -->
+<div class="main-layout">
+
+  <!-- LEFT: TERMINAL OUTPUT -->
+  <div class="panel terminal-panel">
+    <div class="panel-header">
+      <span class="panel-dot r"></span><span class="panel-dot y"></span><span class="panel-dot g"></span>
+      <span class="panel-title">GHOST_TERMINAL — ghost@{{ user.username }}</span>
+    </div>
+    <div id="terminal-output" class="terminal-output">
+      <div class="t-line system">GhostNet OS v2.0 — Encrypted Shell Active</div>
+      <div class="t-line system">Type <span class="t-cmd">help</span> for available commands.</div>
+      <div class="t-line dim">─────────────────────────────────────────</div>
+    </div>
+    <div class="terminal-input-wrap">
+      <span class="prompt">ghost@{{ user.username }}:~$</span>
+      <input type="text" id="cmd-input" class="cmd-input" autocomplete="off" autofocus placeholder="enter command...">
+    </div>
+  </div>
+
+  <!-- RIGHT: PANELS -->
+  <div class="side-panels">
+
+    <!-- World Map / Hack Panel -->
+    <div class="panel hack-panel">
+      <div class="panel-header">
+        <span class="panel-title">🌐 WORLD MAP — TARGETS</span>
+      </div>
+      <div class="world-map" id="world-map">
+        {% set targets = [
+          ('MegaCorp HQ', 'Tokyo', '🏢', 1),
+          ('DataVault Labs', 'Berlin', '🔬', 2),
+          ('NeoBank', 'New York', '🏦', 3),
+          ('SkyNet Relay', 'Singapore', '📡', 4),
+          ('DarkHub Node', 'Moscow', '💀', 6),
+          ('The Architect', '???', '⚛️', 10),
+        ] %}
+        {% for name, city, icon, req in targets %}
+        <div class="target-card {% if user.rank_idx >= req %}unlocked{% endif %}" onclick="hackTarget('{{ name }}', {{ req }})">
+          <div class="target-icon">{{ icon }}</div>
+          <div class="target-info">
+            <div class="target-name">{{ name }}</div>
+            <div class="target-loc">{{ city }}</div>
+          </div>
+          <div class="target-status {% if user.rank_idx >= req %}available{% else %}locked{% endif %}">
+            {% if user.rank_idx >= req %}HACK{% else %}LOCKED{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Botnet Manager -->
+    <div class="panel botnet-panel">
+      <div class="panel-header">
+        <span class="panel-title">🤖 BOTNET MANAGER</span>
+        <span class="panel-sub">Passive income per minute</span>
+      </div>
+      <div class="botnet-list">
+        {% for key, bot in botnet_defs.items() %}
+        <div class="bot-row">
+          <span class="bot-icon">{{ bot.icon }}</span>
+          <div class="bot-info">
+            <div class="bot-name">{{ bot.name }}</div>
+            <div class="bot-stats">${{ bot.income }}/min · {{ bot.xp_per_tick }} XP/min</div>
+          </div>
+          <div class="bot-count" id="bot-count-{{ key }}">×{{ botnets.get(key, 0) }}</div>
+          <button class="bot-buy-btn" onclick="buyBot('{{ key }}', {{ bot.cost }})">
+            ${{ '{:,}'.format(bot.cost) }}
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div><!-- /side-panels -->
+</div><!-- /main-layout -->
+
+<!-- ══ BOTTOM TABS ══ -->
+<div class="bottom-tabs">
+  <button class="btab active" onclick="showTab('missions')">📋 MISSIONS</button>
+  <button class="btab" onclick="showTab('achievements')">🏆 ACHIEVEMENTS</button>
+  <button class="btab" onclick="showTab('ranks')">🎖️ RANKS</button>
+  <button class="btab" onclick="showTab('quantum')">⚛️ QUANTUM</button>
+</div>
+
+<div class="tab-content" id="tab-missions">
+  <div class="mission-grid">
+    {% for m in missions %}
+    <div class="mission-card {% if m.id in missions_done %}done{% elif user.rank_idx >= m.req_rank %}available{% endif %}"
+         onclick="runMission({{ m.id }}, {{ m.req_rank }})">
+      <div class="mission-num">M{{ '%03d'|format(m.id) }}</div>
+      <div class="mission-title">{{ m.title }}</div>
+      <div class="mission-desc">{{ m.desc }}</div>
+      <div class="mission-reward">⚡ {{ '{:,}'.format(m.xp) }} XP &nbsp;|&nbsp; 💰 ${{ '{:,}'.format(m.cash) }}</div>
+      <div class="mission-status">
+        {% if m.id in missions_done %}✅ COMPLETE
+        {% elif user.rank_idx >= m.req_rank %}▶ AVAILABLE
+        {% else %}🔒 REQ: {{ ranks[m.req_rank][1] }}{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="tab-content hidden" id="tab-achievements">
+  <div class="ach-grid">
+    {% for ach in achievement_defs %}
+    <div class="ach-card {% if ach.id in achievements %}unlocked{% endif %}">
+      <div class="ach-icon">{{ ach.icon }}</div>
+      <div class="ach-name">{{ ach.name }}</div>
+      <div class="ach-desc">{{ ach.desc }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="tab-content hidden" id="tab-ranks">
+  <div class="rank-grid-game">
+    {% for threshold, rname, ricon in ranks %}
+    <div class="rank-row {% if loop.index0 == user.rank_idx %}current{% elif loop.index0 < user.rank_idx %}done{% endif %}">
+      <span class="rank-ico">{{ ricon }}</span>
+      <span class="rank-n">{{ rname }}</span>
+      <span class="rank-t">{{ '{:,}'.format(threshold) }} XP</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="tab-content hidden" id="tab-quantum">
+  <div class="quantum-panel">
+    <div class="q-title">⚛️ QUANTUM EXPLOIT</div>
+    <div class="q-desc">Uses Grover's algorithm simulation to crack encrypted targets. Requires Ghost Operator rank or higher.</div>
+    <div class="q-circuit">
+      <div class="q-wire">|0⟩ ──H──■──H── M</div>
+      <div class="q-wire">|0⟩ ──H──⊕──H── M</div>
+      <div class="q-note">// Grover oracle: 2-qubit search</div>
+    </div>
+    <button class="quantum-btn" onclick="runQuantum()">⚛️ EXECUTE QUANTUM EXPLOIT</button>
+    <div id="quantum-result" class="quantum-result"></div>
+  </div>
+</div>
+
+<!-- Toast notifications -->
+<div id="toast-container"></div>
+
+<script src="{{ url_for('static', filename='js/city.js') }}"></script>
+<script src="{{ url_for('static', filename='js/terminal.js') }}"></script>
+<script>
+// Auto-refresh stats every 60s
+setInterval(async ()=>{
+  const r = await fetch('/api/status');
+  const d = await r.json();
+  if(d.xp !== undefined){
+    document.getElementById('hud-xp').textContent = d.xp.toLocaleString();
+    document.getElementById('hud-cash').textContent = d.cash.toLocaleString();
+    document.getElementById('hud-rank').textContent = d.rank_name;
+    document.getElementById('hud-rank-icon').textContent = d.rank_icon;
+  }
+}, 60000);
+</script>
+</body>
+</html>

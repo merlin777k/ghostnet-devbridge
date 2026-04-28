@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GhostNet — Your Story Begins</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ghost.css') }}">
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="city-wrap" id="city-wrap">
+  <div class="city-haze"></div>
+  <div class="buildings-back" id="buildings-back"></div>
+  <div class="buildings-front" id="buildings-front"></div>
+  <div class="fog"></div>
+  <div class="ground-glow"></div>
+</div>
+<div class="particles" id="particles"></div>
+
+<div class="story-intro-wrap">
+  <div class="story-intro-box">
+    <div class="story-chapter-badge">CHAPTER I — THE DROPOUT</div>
+    <div class="story-title">Your Story Begins, <span class="user-name">{{ username }}</span></div>
+    <div class="story-body" id="story-body"></div>
+    <div id="story-cursor" class="story-cursor">█</div>
+    <button id="story-skip" class="story-skip-btn" onclick="skipStory()">SKIP ▶▶</button>
+    <a id="story-enter" href="/terminal" class="cta-btn" style="display:none; margin-top:24px;">▶ ENTER TERMINAL</a>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/city.js') }}"></script>
+<script>
+const storyLines = [
+  "You dropped out of university on a Tuesday.",
+  "",
+  "Not because you failed —",
+  "because they couldn't teach you anything new.",
+  "",
+  "By Wednesday you had cracked a Fortune 500 firewall.",
+  "Just to see if you could.",
+  "",
+  "By Thursday, an encrypted file appeared in your inbox.",
+  "No sender. No subject.",
+  "Just a single line:",
+  "",
+  '"We know what you did."',
+  '"And we\'re impressed."',
+  "",
+  "That was your invitation.",
+  "",
+  "The Net is dark and full of signals.",
+  "Climb the ranks. Build your botnet.",
+  "Find the Architect.",
+  "",
+  "Welcome to the underground, {{ username }}.",
+  "Don't get caught.",
+];
+
+let li=0, ci=0, text='';
+const bodyEl = document.getElementById('story-body');
+const cursor = document.getElementById('story-cursor');
+
+function typeNext(){
+  if(li >= storyLines.length){
+    cursor.style.display='none';
+    document.getElementById('story-enter').style.display='inline-block';
+    document.getElementById('story-skip').style.display='none';
+    return;
+  }
+  const line = storyLines[li];
+  if(ci <= line.length){
+    text = storyLines.slice(0,li).join('\n') + '\n' + line.substring(0,ci);
+    bodyEl.textContent = text;
+    ci++;
+    setTimeout(typeNext, ci<=line.length ? 30+Math.random()*20 : 0);
+  } else {
+    li++; ci=0;
+    setTimeout(typeNext, line===''? 200 : 400);
+  }
+}
+
+function skipStory(){
+  li = storyLines.length;
+  bodyEl.textContent = storyLines.join('\n');
+  cursor.style.display='none';
+  document.getElementById('story-enter').style.display='inline-block';
+  document.getElementById('story-skip').style.display='none';
+}
+
+setTimeout(typeNext, 800);
+</script>
+</body>
+</html>

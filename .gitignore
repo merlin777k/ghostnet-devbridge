@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.db
+*.sqlite
+.env
+env/
+venv/
+*.log
+*.tar.gz
+*.bak
+*.stamp

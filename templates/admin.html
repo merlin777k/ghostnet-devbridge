@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GhostNet Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ghost.css') }}">
+<style>
+.admin-wrap{padding:70px 24px 40px;max-width:1400px;margin:0 auto;}
+.admin-title{font-family:'Orbitron',sans-serif;font-size:22px;color:var(--cyan);margin-bottom:24px;letter-spacing:3px;}
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:32px;}
+.admin-stat{background:rgba(0,245,255,0.05);border:1px solid rgba(0,245,255,0.15);padding:16px;text-align:center;}
+.admin-stat .val{font-family:'Orbitron',sans-serif;font-size:28px;color:var(--cyan);}
+.admin-stat .lbl{font-size:10px;color:rgba(0,245,255,0.4);letter-spacing:2px;margin-top:4px;}
+.user-table{width:100%;border-collapse:collapse;font-size:12px;}
+.user-table th{background:rgba(0,245,255,0.08);color:rgba(0,245,255,0.6);padding:10px 12px;text-align:left;letter-spacing:2px;font-size:10px;border-bottom:1px solid rgba(0,245,255,0.15);}
+.user-table td{padding:10px 12px;border-bottom:1px solid rgba(0,245,255,0.06);vertical-align:middle;}
+.user-table tr:hover td{background:rgba(0,245,255,0.03);}
+.action-btn{font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 8px;border:1px solid;background:transparent;cursor:pointer;margin:2px;letter-spacing:1px;}
+.btn-ban{color:var(--magenta);border-color:rgba(255,0,110,0.4);}
+.btn-ban:hover{background:rgba(255,0,110,0.1);}
+.btn-unban{color:var(--green);border-color:rgba(0,255,136,0.4);}
+.btn-reset{color:var(--yellow);border-color:rgba(255,230,0,0.4);}
+.btn-delete{color:#ff4444;border-color:rgba(255,68,68,0.4);}
+.btn-vip{color:var(--cyan);border-color:rgba(0,245,255,0.3);}
+.badge-vip{font-size:10px;color:var(--yellow);}
+.badge-ban{font-size:10px;color:var(--magenta);}
+.export-btn{font-family:'Orbitron',sans-serif;font-size:11px;padding:8px 20px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);cursor:pointer;letter-spacing:2px;margin-bottom:20px;}
+</style>
+</head>
+<body style="background:#020408;color:var(--cyan);">
+<div class="topbar">
+  <div class="logo">GHOST<span>NET</span> <span class="beta-label">ADMIN</span></div>
+  <div class="topbar-right">
+    <a href="/terminal" class="topbar-link">GAME</a>
+    <a href="/admin/export" class="topbar-link">EXPORT JSON</a>
+    <a href="/logout" class="topbar-link">LOGOUT</a>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <div class="admin-title">// ADMIN DASHBOARD</div>
+
+  <div class="admin-stats">
+    <div class="admin-stat"><div class="val">{{ users|length }}</div><div class="lbl">TOTAL USERS</div></div>
+    <div class="admin-stat"><div class="val">{{ users|selectattr('vip_tier')|list|length }}</div><div class="lbl">VIP USERS</div></div>
+    <div class="admin-stat"><div class="val">{{ users|selectattr('banned')|list|length }}</div><div class="lbl">BANNED</div></div>
+    <div class="admin-stat"><div class="val">{{ users|sum(attribute='xp') | int | string | truncate(8,True,'') }}</div><div class="lbl">TOTAL XP</div></div>
+  </div>
+
+  <button class="export-btn" onclick="window.open('/admin/export')">📥 EXPORT ALL DATA</button>
+
+  <div id="action-msg" style="color:var(--green);font-size:12px;margin-bottom:12px;min-height:20px;"></div>
+
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>ID</th><th>USERNAME</th><th>RANK</th><th>XP</th><th>CASH</th><th>VIP</th><th>STATUS</th><th>ACTIONS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr id="row-{{ u.id }}">
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ ranks[u.rank_idx][2] }} {{ ranks[u.rank_idx][1] }}</td>
+        <td>{{ '{:,}'.format(u.xp) }}</td>
+        <td>${{ '{:,}'.format(u.cash) }}</td>
+        <td>
+          {% if u.vip_tier %}
+            <span class="badge-vip">{{ vip_tiers[u.vip_tier].name }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if u.banned %}<span class="badge-ban">BANNED</span>{% else %}<span style="color:var(--green)">ACTIVE</span>{% endif %}
+        </td>
+        <td>
+          {% if u.banned %}
+            <button class="action-btn btn-unban" onclick="doAction({{ u.id }},'unban')">UNBAN</button>
+          {% else %}
+            <button class="action-btn btn-ban" onclick="doAction({{ u.id }},'ban')">BAN</button>
+          {% endif %}
+          <button class="action-btn btn-reset" onclick="doAction({{ u.id }},'reset')">RESET</button>
+          <select id="vip-sel-{{ u.id }}" style="background:#020408;color:var(--cyan);border:1px solid rgba(0,245,255,0.2);font-family:monospace;font-size:10px;padding:3px;">
+            <option value="">— VIP —</option>
+            {% for k,v in vip_tiers.items() %}<option value="{{ k }}">{{ v.name }}</option>{% endfor %}
+          </select>
+          <button class="action-btn btn-vip" onclick="grantVip({{ u.id }})">GRANT</button>
+          <button class="action-btn btn-vip" onclick="doAction({{ u.id }},'revoke_vip')">REVOKE</button>
+          <button class="action-btn btn-delete" onclick="if(confirm('Delete user?'))doAction({{ u.id }},'delete')">DEL</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+async function doAction(uid, action){
+  const r = await fetch('/admin/action', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({uid,action})
+  });
+  const d = await r.json();
+  document.getElementById('action-msg').textContent = d.ok ? `✅ Action [${action}] on uid ${uid} done.` : '❌ Failed';
+  setTimeout(()=>location.reload(), 1000);
+}
+async function grantVip(uid){
+  const tier = document.getElementById('vip-sel-'+uid).value;
+  if(!tier) return alert('Select a tier');
+  const r = await fetch('/admin/action', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({uid, action:'grant_vip', tier})
+  });
+  const d = await r.json();
+  document.getElementById('action-msg').textContent = d.ok ? `✅ VIP granted!` : '❌ Failed';
+  setTimeout(()=>location.reload(), 1000);
+}
+</script>
+</body>
+</html>
