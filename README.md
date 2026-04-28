@@ -102,7 +102,7 @@ This repository contains **GhostNet V2**, an early open-source demo version of t
 
 ## 👤 Developer
 
-**Engr. Orlando Ritchie R. Natonton, IE, ME, LPT**
+**Engr. Orlando Ritchie R. Natonton, IE, MOE, LPT**
 Faculty — Father Saturnino Urios University (FSUU)
 CEO/Founder — M73 vLabs
 
